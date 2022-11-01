@@ -1,0 +1,14 @@
+version: '3'
+
+tasks:
+  migrate:
+    desc: migrate db
+    cmds:
+      - cd migrate && source .env && go run main.go {{.CLI_ARGS}}
+
+  todo:
+    cmds:
+      - cd services/todo_service && GOOS=linux GARCH=amd64 CGO_ENABLED=0 go build -o todo cmd/server/main.go
+      - docker-compose build todo
+      - cd services/todo_service && rm todo
+      - docker-compose up todo

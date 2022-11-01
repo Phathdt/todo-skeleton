@@ -1,0 +1,12 @@
+/.idea
+*.DS_Store
+/backend/main
+/backend/uploads/*
+/.env
+/migrate/.env
+/backend/.env
+**/.vscode
+dump.rdb
+*.idea
+*.env
+**/.env*

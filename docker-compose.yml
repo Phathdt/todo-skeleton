@@ -1,0 +1,40 @@
+version: "3.9"
+services:
+  postgres-db:
+    image: debezium/postgres:14-alpine
+    ports:
+      - '15432:5432'
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 123123123
+      POSTGRES_DB: todo
+
+  redis-db:
+    image: bitnami/redis:6.2.6
+    environment:
+      - ALLOW_EMPTY_PASSWORD=yes
+    ports:
+      - '16379:6379'
+
+  migrate:
+    build:
+      context: ./migrate
+      dockerfile: ./Dockerfile.dep
+    environment:
+      DB_URI: postgresql://postgres:123123123@postgres-db:5432/todo?sslmode=disable
+
+  todo:
+    build:
+      context: ./services/todo_service
+      dockerfile: ./cmd/server/Dockerfile.dep
+    environment:
+      APP_ENV: dev
+      LOG_LEVEL: trace
+      MDB_GORM_DB_PING_INTERVAL: 5
+      MDB_GORM_DB_TYPE: postgres
+      MDB_GORM_DB_URI: "postgresql://postgres:123123123@postgres-db:5432/todo?sslmode=disable"
+      REDIS_POOL_MAX_ACTIVE:
+      REDIS_POOL_MAX_IDLE: 10
+      REDIS_URI: redis://redis-db:6379
+    ports:
+      - '4000:4000'
